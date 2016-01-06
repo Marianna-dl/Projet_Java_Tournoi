@@ -56,7 +56,7 @@ public class LanceMonstre {
 			e.printStackTrace();
 			System.exit(ErreurLancement.suivant);
 		}
-		
+		System.out.println("test");
 		// lancement du serveur
 		try {
 			String ipConsole = InetAddress.getLocalHost().getHostAddress();
