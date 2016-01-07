@@ -300,7 +300,8 @@ public interface IArene extends Remote {
 	 * @param motDePasse mot de passe administrateur
 	 * @throws RemoteException
 	 */
-	public void lancePotionTP(PotionTP potion, Point position, String motDePasse) throws RemoteException;
 	
+	public void lancePotionTP(PotionTP potion, Point position, String motDePasse) throws RemoteException;
+	public Element elementFromRef(int refRMI) throws RemoteException;
 }
 
