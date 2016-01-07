@@ -220,11 +220,7 @@ public class StrategiePersonnage {
 			}/********** FIN DU DANGER(VIE FAIBLE) **************/
 			
 			
-			if(distPlusProche <= Constantes.DISTANCE_MIN_INTERACTION) { // si suffisamment proches
-				// j'interagis directement
-				interagit(arene, refCible, refRMI, elemPlusProche);
-				
-			} else { // si voisins, mais plus eloignes
+			else { // si voisins, mais plus eloignes
 				// je vais vers le plus proche
 				
 				//voisin le plus proche sans clairvoyance
@@ -263,7 +259,21 @@ public class StrategiePersonnage {
 	public void fuite(IArene arene, int refRMI, int refCible) throws RemoteException{
 		Point coord = arene.getPosition(refCible);
 		Point coordPerso=arene.getPosition(refRMI);
-		if(coord.getX()>coordPerso.getX()){
+		if(coordPerso.getY()==Calculs.getOffset()){
+			if(coord.getX()==coord.getX())
+				arene.deplace(refRMI, new Point((int)coordPerso.getX(),(int)coordPerso.getY()+1));
+			if(coordPerso.getX()==Calculs.getOffset())
+				arene.deplace(refRMI, new Point((int)coordPerso.getX()+1,(int)coordPerso.getY()));
+			else
+				arene.deplace(refRMI, new Point((int)coordPerso.getX()-1,(int)coordPerso.getY()));
+		}else if(coordPerso.getY()==Constantes.YMAX_ARENE-Calculs.getOffset()){
+			if(coord.getX()==coord.getX())
+				arene.deplace(refRMI, new Point((int)coordPerso.getX(),(int)coordPerso.getY()-1));
+			if(coordPerso.getX()==Calculs.getOffset())
+				arene.deplace(refRMI, new Point((int)coordPerso.getX()+1,(int)coordPerso.getY()));
+			else
+				arene.deplace(refRMI, new Point((int)coordPerso.getX()-1,(int)coordPerso.getY()));
+		}else if(coord.getX()>coordPerso.getX()){
 			if(coord.getY()>coordPerso.getY())
 				arene.deplace(refRMI, new Point((int)coordPerso.getX()-1,(int)coordPerso.getY()-1));
 			else if(coord.getY()<coordPerso.getY())
