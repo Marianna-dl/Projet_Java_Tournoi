@@ -21,7 +21,7 @@ public class Constantes {
 	/**
 	 * Port utilise par defaut.
 	 */
-	public static final int PORT_DEFAUT = 1240;
+	public static final int PORT_DEFAUT = 5099;
 	
 	/**
 	 * Nombre de tours par defaut (30 minutes).

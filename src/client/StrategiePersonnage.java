@@ -189,6 +189,9 @@ public class StrategiePersonnage {
 								else{// Sinon on fuit
 									int refPopo=chercherPotionTP(voisins, arene, refRMI);
 									if(refPopo!=-1){
+										if(distPlusProche<=Constantes.DISTANCE_MIN_INTERACTION){
+											arene.lanceAttaque(refRMI, refCible);
+										}
 										console.setPhrase("Je vais vers "+arene.nomFromRef(refPopo));
 										arene.deplace(refRMI, refPopo);
 									}
@@ -222,6 +225,9 @@ public class StrategiePersonnage {
 						else{// On suppose que le perso est plus fort
 							int refPopo=chercherPotionTP(voisins, arene, refRMI);
 							if(refPopo!=-1){
+								if(distPlusProche<=Constantes.DISTANCE_MIN_INTERACTION){
+									arene.lanceAttaque(refRMI, refCible);
+								}
 								console.setPhrase("Je vais vers "+arene.nomFromRef(refPopo));
 								arene.deplace(refRMI, refPopo);
 							}else{
@@ -265,6 +271,9 @@ public class StrategiePersonnage {
 				}else if(!voisinFaible(arene,refRMI,refCible)){
 					int refPopo=chercherPotionTP(voisins, arene, refRMI);
 					if(refPopo!=-1){
+						if(distPlusProche<=Constantes.DISTANCE_MIN_INTERACTION){
+							arene.lanceAttaque(refRMI, refCible);
+						}
 						console.setPhrase("Je vais vers "+arene.nomFromRef(refPopo));
 						arene.deplace(refRMI, refPopo);
 					}else{
