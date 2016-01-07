@@ -275,6 +275,12 @@ public interface IArene extends Remote {
 	 * @throws RemoteException
 	 */
 	public void lancePotion(Potion potion, Point position, String motDePasse) throws RemoteException;
+
+	public HashMap<Caracteristique, Integer> lanceClairvoyance(int refRMI, int refCible) throws RemoteException;
+
+	public boolean lanceAutoSoin(int refRMI) throws RemoteException;
+
+	//public Element elementFromRef(int refVoisin) throws RemoteException;
 	
 }
 
