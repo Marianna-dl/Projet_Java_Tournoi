@@ -189,7 +189,7 @@ public class StrategiePersonnage {
 								}
 								else{// Sinon on fuit
 									console.setPhrase("Je fuis...");
-									arene.deplace(refRMI, 0); // A l'oppose
+									fuite(arene,refRMI,refCible); // A l'oppose
 								}
 							}
 							else{
@@ -210,7 +210,7 @@ public class StrategiePersonnage {
 							arene.lanceAutoSoin(refRMI);
 						}
 						else{// On suppose que le perso est plus fort
-							arene.deplace(refRMI, 0); // A l'oppose
+							fuite(arene,refRMI,refCible); // A l'oppose
 						}
 						
 					}
@@ -247,10 +247,7 @@ public class StrategiePersonnage {
 					
 				}else if(!voisinFaible(arene,refRMI,refCible)){
 					
-					Point coord=arene.getPosition(refCible);
-					coord.x=-coord.x;
-					coord.y=-coord.y;
-					arene.deplace(refRMI,coord);
+					fuite(arene,refRMI,refCible);
 				}
 				else{
 					if(perso.getCaract(Caracteristique.VIE)<100)
@@ -263,7 +260,47 @@ public class StrategiePersonnage {
 	}
 
 	
-	
+	public void fuite(IArene arene, int refRMI, int refCible) throws RemoteException{
+		Point coord = arene.getPosition(refCible);
+		Point coordPerso=arene.getPosition(refRMI);
+		if(coord.getX()>coordPerso.getX()){
+			if(coord.getY()>coordPerso.getY())
+				arene.deplace(refRMI, new Point((int)coordPerso.getX()-1,(int)coordPerso.getY()-1));
+			else if(coord.getY()<coordPerso.getY())
+				arene.deplace(refRMI, new Point((int)coordPerso.getX()-1,(int)coordPerso.getY()+1));
+			else if(coordPerso.getY()>=50)
+				arene.deplace(refRMI, new Point((int)coordPerso.getX()-1,(int)coordPerso.getY()-1));
+			else
+				arene.deplace(refRMI, new Point((int)coordPerso.getX()-1,(int)coordPerso.getY()+1));
+		}else if(coord.getX()<coordPerso.getX()){
+		if(coord.getY()>coordPerso.getY())
+			arene.deplace(refRMI, new Point((int)coordPerso.getX()+1,(int)coordPerso.getY()-1));
+		else if(coord.getY()<coordPerso.getY())
+			arene.deplace(refRMI, new Point((int)coordPerso.getX()+1,(int)coordPerso.getY()+1));
+		else if(coordPerso.getY()>=50)
+			arene.deplace(refRMI, new Point((int)coordPerso.getX()+1,(int)coordPerso.getY()-1));
+		else
+			arene.deplace(refRMI, new Point((int)coordPerso.getX()+1,(int)coordPerso.getY()+1));
+		}else if(coordPerso.getX()>=50){
+			if(coord.getY()>coordPerso.getY())
+				arene.deplace(refRMI, new Point((int)coordPerso.getX()-1,(int)coordPerso.getY()-1));
+			else if(coord.getY()<coordPerso.getY())
+				arene.deplace(refRMI, new Point((int)coordPerso.getX()-1,(int)coordPerso.getY()+1));
+			else if(coordPerso.getY()>=50)
+				arene.deplace(refRMI, new Point((int)coordPerso.getX()-1,(int)coordPerso.getY()-1));
+			else
+				arene.deplace(refRMI, new Point((int)coordPerso.getX()-1,(int)coordPerso.getY()+1));
+		}else{
+			if(coord.getY()>coordPerso.getY())
+				arene.deplace(refRMI, new Point((int)coordPerso.getX()+1,(int)coordPerso.getY()-1));
+			else if(coord.getY()<coordPerso.getY())
+				arene.deplace(refRMI, new Point((int)coordPerso.getX()+1,(int)coordPerso.getY()+1));
+			else if(coordPerso.getY()>=50)
+				arene.deplace(refRMI, new Point((int)coordPerso.getX()+1,(int)coordPerso.getY()-1));
+			else
+				arene.deplace(refRMI, new Point((int)coordPerso.getX()+1,(int)coordPerso.getY()+1));
+		}
+	}
 	
 /**
  * Fonction qui determine si on peut avancer et attaquer ou attendre
@@ -303,7 +340,7 @@ public void strategieDeplacement(int distance, IArene arene, int refRMI, int cib
 	/**
 	 * Cherche la potion qui rend de la vie la plus proche
 	 * @param voisins tableau des voisins du personnage
-	 * @param perso Personnage qui voit les éléments
+	 * @param perso Personnage qui voit les elements
 	 * @return la potion de vie la plus proche, -1 sinon
 	 * @throws RemoteException
 	 */
@@ -344,7 +381,7 @@ public int chercherPotionVieVoisin(HashMap<Integer, Point> voisins, IArene arene
 }
 
 /**
- * Permet d'intéragir avec les differents elements
+ * Permet d'interagir avec les differents elements
  * @param arene
  * @param refCible
  * @param refRMI
@@ -404,7 +441,7 @@ public boolean verifierPotion(IArene arene, int refCible) throws RemoteException
 	
 }
 
-	//Retourne la r�f�rence du voisin non analys� le plus proche. 0 si aucun 
+	//Retourne la reference du voisin non analyse le plus proche. 0 si aucun 
 	private int voisinJoueur(IArene arene, HashMap<Integer, Point> voisins) {
 		// TODO Auto-generated method stub
 		for(int refVoisin : voisins.keySet()){
