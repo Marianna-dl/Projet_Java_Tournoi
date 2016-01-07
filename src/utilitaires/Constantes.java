@@ -16,12 +16,12 @@ public class Constantes {
 	/**
 	 * Adresse IP par defaut (localhost). 
 	 */
-	public static final String IP_DEFAUT = "localhost";
+	public static final String IP_DEFAUT = "130.120.250.20";
 
 	/**
 	 * Port utilise par defaut.
 	 */
-	public static final int PORT_DEFAUT = 5099;
+	public static final int PORT_DEFAUT = 2400;
 	
 	/**
 	 * Nombre de tours par defaut (30 minutes).
