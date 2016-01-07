@@ -182,7 +182,7 @@ public class StrategiePersonnage {
 								boolean distanceVoisins = verifieVoisin(refRMI, refCible, voisins, arene);
 								
 								//on fuit
-								if(distPlusProche>3 && distanceVoisins){ //On a le temps de se soigner
+								if(distPlusProche>10 && distanceVoisins){ //On a le temps de se soigner
 									console.setPhrase("Je me soigne...");
 									arene.lanceAutoSoin(refRMI);
 								}
@@ -194,6 +194,7 @@ public class StrategiePersonnage {
 							else{
 								//on attaque si possible
 								if(distPlusProche <= Constantes.DISTANCE_MIN_INTERACTION) { 
+									console.setPhrase("J'attaque...");
 									arene.lanceAttaque(refRMI, refCible);
 								}
 								else{
@@ -203,7 +204,7 @@ public class StrategiePersonnage {
 							}
 							
 						} // Il n'est pas dans le tableau de clairvoyance
-						else if(distPlusProche>5){ //On a le temps de se soigner
+						else if(distPlusProche>10){ //On a le temps de se soigner
 							//arene.lanceClairvoyance(refRMI, refCible);
 							console.setPhrase("Je me soigne...");
 							arene.lanceAutoSoin(refRMI);
@@ -223,7 +224,7 @@ public class StrategiePersonnage {
 				//voisin le plus proche sans clairvoyance
 				int refCibleTmp=voisinJoueur(arene,voisins);
 				if(refCibleTmp!=0 && distPlusProche>=7){
-					
+					console.setPhrase("J'analyse "+elemPlusProche);
 					tabClairvoyance[refCibleTmp]= arene.lanceClairvoyance(refRMI, refCibleTmp);
 					
 				}else if(!arene.estPotionFromRef(refCible) && voisinFaible(arene,refRMI,refCible)){
@@ -235,18 +236,23 @@ public class StrategiePersonnage {
 						interagit(arene, refCible, refRMI, elemPlusProche);		
 					}
 					else{
+						console.setPhrase("Je me dirige vers "+elemPlusProche);
 						arene.deplace(refRMI, refCible);
 					}
 					
 				}else if(!voisinFaible(arene,refRMI,refCible)){
-					
+					console.setPhrase("Je fuis");
 					fuite(arene,refRMI,refCible);
 				}
 				else{
-					if(perso.getCaract(Caracteristique.VIE)<100)
+					if(perso.getCaract(Caracteristique.VIE)<100){
+						console.setPhrase("Je me soigne !");
 						arene.lanceAutoSoin(refRMI);
-					else
+					}
+					else{
+						console.setPhrase("J'erre");
 						arene.deplace(refRMI, 0);
+					}
 				}
 			}
 		}
@@ -296,7 +302,15 @@ public class StrategiePersonnage {
 	}
 	
 	
-	
+/**
+ * 
+ * @param refRMI
+ * @param refCible
+ * @param voisins
+ * @param arene
+ * @return si tout les voisins sont assez loin
+ * @throws RemoteException
+ */
 public boolean verifieVoisin(int refRMI, int refCible, HashMap<Integer, Point> voisins, IArene arene ) throws RemoteException{
 	
 	boolean verifie = true;
@@ -330,8 +344,6 @@ public void strategieDeplacement(int distance, IArene arene, int refRMI, int cib
 	
 	int dist = Calculs.distanceChebyshev( arene.getPosition(refRMI), 
 			arene.getPosition(cible));
-	
-	console.log(Level.WARNING, "DISTANCE ", " distance "+dist);
 	
 	if(distance == 3){
 		console.setPhrase("J'attaque !");
@@ -480,12 +492,10 @@ public boolean verifierPotion(IArene arene, int refCible) throws RemoteException
 	private boolean voisinFaible(IArene arene, int refRMI, int refAdv){
 		if(tabClairvoyance[refAdv]!=null)
 			try {
-				if(tabClairvoyance[refAdv].get(Caracteristique.INITIATIVE)<=perso.getCaract(Caracteristique.INITIATIVE))
 				//faible si on le OHKO ou si on le 2HKO mais pas lui 
-					return ((arene.caractFromRef(refAdv, Caracteristique.VIE)<=perso.getCaract(Caracteristique.FORCE)-((tabClairvoyance[refAdv].get(Caracteristique.DEFENSE)/100)*perso.getCaract(Caracteristique.FORCE)))
-						|| ((2*arene.caractFromRef(refAdv, Caracteristique.VIE)<=perso.getCaract(Caracteristique.FORCE)-((tabClairvoyance[refAdv].get(Caracteristique.DEFENSE)/100)*perso.getCaract(Caracteristique.FORCE))) && (tabClairvoyance[refAdv].get(Caracteristique.FORCE)-((perso.getCaract(Caracteristique.DEFENSE)/100)*tabClairvoyance[refAdv].get(Caracteristique.FORCE))<2*perso.getCaract(Caracteristique.VIE))));
-				else
-					return false;
+				return ((arene.caractFromRef(refAdv, Caracteristique.VIE)<=perso.getCaract(Caracteristique.FORCE)-((tabClairvoyance[refAdv].get(Caracteristique.DEFENSE)/100)*perso.getCaract(Caracteristique.FORCE)))
+				|| ((2*arene.caractFromRef(refAdv, Caracteristique.VIE)<=perso.getCaract(Caracteristique.FORCE)-((tabClairvoyance[refAdv].get(Caracteristique.DEFENSE)/100)*perso.getCaract(Caracteristique.FORCE))) 
+				&& (tabClairvoyance[refAdv].get(Caracteristique.FORCE)-((perso.getCaract(Caracteristique.DEFENSE)/100)*tabClairvoyance[refAdv].get(Caracteristique.FORCE))<2*perso.getCaract(Caracteristique.VIE))));
 			} catch (RemoteException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
