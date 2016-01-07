@@ -103,11 +103,11 @@ public class StrategiePersonnage {
 		}
 		
 		
-		if (voisins.isEmpty() && arene.caractFromRef(refRMI, Caracteristique.VIE) > VIEFAIBLE) { // je n'ai pas de voisins, j'erre
+		if (voisins.isEmpty() && arene.caractFromRef(refRMI, Caracteristique.VIE) == 100) { // je n'ai pas de voisins, j'erre
 			console.setPhrase("J'erre...");
 			arene.deplace(refRMI, 0); 
 			
-		}else if(voisins.isEmpty() && arene.caractFromRef(refRMI, Caracteristique.VIE) <= VIEFAIBLE){
+		}else if(voisins.isEmpty() && arene.caractFromRef(refRMI, Caracteristique.VIE) < 100){
 			console.setPhrase("Je me soigne...");
 			arene.lanceAutoSoin(refRMI);
 		}
@@ -178,12 +178,11 @@ public class StrategiePersonnage {
 					} //FIN si c'est un monstre/potion
 					else{//C'est un personnage
 						if(tabClairvoyance.length !=0 && tabClairvoyance[refCible] != null){
-							//verifie qu'il ne peut pas nous tuer avec sa defense 
-							//VOIR CODE THIERRY
-							//En attendant, on se base que sur la force en trichant, on fuit
 							if(!voisinFaible(arene, refRMI, refCible) ){
+								boolean distanceVoisins = verifieVoisin(refRMI, refCible, voisins, arene);
+								
 								//on fuit
-								if(distPlusProche>3){ //On a le temps de se soigner
+								if(distPlusProche>3 && distanceVoisins){ //On a le temps de se soigner
 									console.setPhrase("Je me soigne...");
 									arene.lanceAutoSoin(refRMI);
 								}
@@ -204,7 +203,7 @@ public class StrategiePersonnage {
 							}
 							
 						} // Il n'est pas dans le tableau de clairvoyance
-						else if(distPlusProche>3){ //On a le temps de se soigner
+						else if(distPlusProche>5){ //On a le temps de se soigner
 							//arene.lanceClairvoyance(refRMI, refCible);
 							console.setPhrase("Je me soigne...");
 							arene.lanceAutoSoin(refRMI);
@@ -219,7 +218,6 @@ public class StrategiePersonnage {
 				
 			}/********** FIN DU DANGER(VIE FAIBLE) **************/
 			
-			
 			else { // si voisins, mais plus eloignes
 				// je vais vers le plus proche
 				
@@ -233,7 +231,7 @@ public class StrategiePersonnage {
 					
 					strategieDeplacement(distPlusProche, arene, refRMI, refCible);
 					
-				}else if(!potionsMauvaises.contains(refCible) && verifierPotion(arene, refCible)){
+				}else if(arene.estPotionFromRef(refCible) && !potionsMauvaises.contains(refCible) && verifierPotion(arene, refCible)){
 					if(distPlusProche <= Constantes.DISTANCE_MIN_INTERACTION){
 						interagit(arene, refCible, refRMI, elemPlusProche);		
 					}
@@ -312,6 +310,28 @@ public class StrategiePersonnage {
 		}
 	}
 	
+	
+	
+public boolean verifieVoisin(int refRMI, int refCible, HashMap<Integer, Point> voisins, IArene arene ) throws RemoteException{
+	
+	boolean verifie = true;
+	int dist; 
+	
+	for(int refVoisin : voisins.keySet()){
+			if(refVoisin != refCible){
+				dist = Calculs.distanceChebyshev( arene.getPosition(refRMI), 
+						arene.getPosition(refVoisin));
+				if(dist<5){
+					verifie = false;
+				}
+				
+			}
+	}
+	
+	return verifie;
+	
+}
+	
 /**
  * Fonction qui determine si on peut avancer et attaquer ou attendre
  * @param distance
@@ -321,6 +341,7 @@ public class StrategiePersonnage {
  * @throws RemoteException
  */
 public void strategieDeplacement(int distance, IArene arene, int refRMI, int cible) throws RemoteException{
+	String elem = arene.nomFromRef(cible);
 	
 	int dist = Calculs.distanceChebyshev( arene.getPosition(refRMI), 
 			arene.getPosition(cible));
@@ -328,6 +349,7 @@ public void strategieDeplacement(int distance, IArene arene, int refRMI, int cib
 	console.log(Level.WARNING, "DISTANCE ", " distance "+dist);
 	
 	if(distance == 3){
+		console.setPhrase("J'attaque !");
 		arene.deplace(refRMI, cible);
 		arene.lanceAttaque(refRMI, cible);
 	}
@@ -337,11 +359,13 @@ public void strategieDeplacement(int distance, IArene arene, int refRMI, int cib
 			arene.lanceAutoSoin(refRMI);
 			
 		}else{
+			console.setPhrase("J'analyse  " + elem);
 			tabClairvoyance[cible]=arene.lanceClairvoyance(refRMI, cible);
 		}
 		
 	}
 	else{
+		console.setPhrase("Je vais vers mon voisin " + elem);
 		arene.deplace(refRMI, cible);
 	}
 	
