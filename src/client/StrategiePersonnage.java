@@ -203,7 +203,7 @@ public class StrategiePersonnage {
 							}
 							
 						} // Il n'est pas dans le tableau de clairvoyance
-						else if(distPlusProche>3){ //On a le temps de se soigner
+						else if(distPlusProche>5){ //On a le temps de se soigner
 							//arene.lanceClairvoyance(refRMI, refCible);
 							console.setPhrase("Je me soigne...");
 							arene.lanceAutoSoin(refRMI);
@@ -230,7 +230,7 @@ public class StrategiePersonnage {
 					
 					strategieDeplacement(distPlusProche, arene, refRMI, refCible);
 					
-				}else if(!potionsMauvaises.contains(refCible) && verifierPotion(arene, refCible)){
+				}else if(arene.estPotionFromRef(refCible) && !potionsMauvaises.contains(refCible) && verifierPotion(arene, refCible)){
 					if(distPlusProche <= Constantes.DISTANCE_MIN_INTERACTION){
 						interagit(arene, refCible, refRMI, elemPlusProche);		
 					}
