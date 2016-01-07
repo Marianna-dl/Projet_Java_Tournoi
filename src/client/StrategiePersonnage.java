@@ -478,7 +478,7 @@ public int chercherPotionVieVoisin(HashMap<Integer, Point> voisins, IArene arene
 				forcePerso = arene.caractFromRef(refVoisin, Caracteristique.FORCE);
 				initiativePerso = arene.caractFromRef(refVoisin, Caracteristique.INITIATIVE);
 				defensePerso = arene.caractFromRef(refVoisin, Caracteristique.DEFENSE);
-				if(viePotion==0 && forcePerso == 0 && initiativePerso == 0  && defensePerso==0){
+				if(viePotion>=0 && forcePerso >= 0 && initiativePerso >= 0  && defensePerso>=0){
 					potionsProches.put(refVoisin, arene.getPosition(refVoisin));
 					
 				}

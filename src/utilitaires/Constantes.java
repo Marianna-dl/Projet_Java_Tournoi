@@ -16,7 +16,7 @@ public class Constantes {
 	/**
 	 * Adresse IP par defaut (localhost). 
 	 */
-	public static final String IP_DEFAUT = "130.120.250.20";
+	public static final String IP_DEFAUT = "localhost";
 
 	/**
 	 * Port utilise par defaut.
