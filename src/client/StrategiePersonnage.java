@@ -504,6 +504,13 @@ public boolean verifierPotion(IArene arene, int refCible) throws RemoteException
 		return 0;
 	}
 	
+	/**
+	 * Test si le voisin est plus faible ou plus fort que nous
+	 * @param arene
+	 * @param refRMI
+	 * @param refAdv
+	 * @return true voisin faible, false sinon
+	 */
 	private boolean voisinFaible(IArene arene, int refRMI, int refAdv){
 		if(tabClairvoyance[refAdv]!=null)
 			try {
