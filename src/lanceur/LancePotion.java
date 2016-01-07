@@ -62,10 +62,10 @@ public class LancePotion {
 			// caracteristiques de la potion
 			HashMap<Caracteristique, Integer> caractsPotion = new HashMap<Caracteristique, Integer>();
 			
-			caractsPotion.put(Caracteristique.VIE, -2);
-			caractsPotion.put(Caracteristique.FORCE, -3);
-			//caractsPotion.put(Caracteristique.VIE, Calculs.nombreAleatoire(-20, 20));
-			//caractsPotion.put(Caracteristique.FORCE, Calculs.nombreAleatoire(-20, 20));
+			//caractsPotion.put(Caracteristique.VIE, -2);
+			//caractsPotion.put(Caracteristique.FORCE, -3);
+			caractsPotion.put(Caracteristique.VIE, Calculs.nombreAleatoire(-20, 20));
+			caractsPotion.put(Caracteristique.FORCE, Calculs.nombreAleatoire(-20, 20));
 			caractsPotion.put(Caracteristique.INITIATIVE, Calculs.nombreAleatoire(-20, 20));
 			caractsPotion.put(Caracteristique.DEFENSE, Calculs.nombreAleatoire(-10, 10));
 			

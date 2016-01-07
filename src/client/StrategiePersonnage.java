@@ -16,6 +16,7 @@ import serveur.element.Personnage;
 import serveur.vuelement.VuePersonnage;
 import utilitaires.Calculs;
 import utilitaires.Constantes;
+import serveur.element.*;
 
 /**
  * Strategie d'un personnage. 
@@ -62,6 +63,7 @@ public class StrategiePersonnage {
 		potionsMauvaises = new ArrayList<Integer>();
 		
 		try {
+			perso=new Personnage (nom,groupe,caracts);
 			console = new Console(ipArene, port, ipConsole, this, 
 					perso, 
 					nbTours, position, logger);
@@ -71,6 +73,7 @@ public class StrategiePersonnage {
 			logger.info("Personnage", "Erreur lors de la creation de la console : \n" + e.toString());
 			e.printStackTrace();
 		}
+
 	}
 
 	// TODO etablir une strategie afin d'evoluer dans l'arene de combat
@@ -118,7 +121,6 @@ public class StrategiePersonnage {
 			/********** SI ON EST EN DANGER (VIE FAIBLE) **************/
 			if(arene.caractFromRef(refRMI, Caracteristique.VIE) <= VIEFAIBLE ){
 				refCible = chercherPotionVieVoisin(voisins, arene, refRMI);
-
 				if(potionsMauvaises.contains(refCible)){ //Mauvaise potion
 					//arene.deplace(refRMI,0);
 					console.setPhrase("Je me soigne...");
@@ -141,7 +143,7 @@ public class StrategiePersonnage {
 					}		
 					
 					
-				}//C'est un personnage ou un monstre
+				}//C'est une potion ou un monstre
 				else{
 					refCible =  Calculs.chercheElementProche(position, voisins);
 					distPlusProche = Calculs.distanceChebyshev(position, arene.getPosition(refCible));
@@ -179,13 +181,14 @@ public class StrategiePersonnage {
 							//verifie qu'il ne peut pas nous tuer avec sa defense 
 							//VOIR CODE THIERRY
 							//En attendant, on se base que sur la force en trichant, on fuit
-							if(arene.elementFromRef(refCible).getCaract(Caracteristique.FORCE) > arene.caractFromRef(refRMI, Caracteristique.VIE) ){
+							if(!voisinFaible(arene, refRMI, refCible) ){
 								//on fuit
 								if(distPlusProche>3){ //On a le temps de se soigner
 									console.setPhrase("Je me soigne...");
 									arene.lanceAutoSoin(refRMI);
 								}
 								else{// Sinon on fuit
+									console.setPhrase("Je fuis...");
 									arene.deplace(refRMI, 0); // A l'oppose
 								}
 							}
@@ -214,12 +217,51 @@ public class StrategiePersonnage {
 
 				}
 				
-				
-				
 			}/********** FIN DU DANGER(VIE FAIBLE) **************/
 			
+			
+			if(distPlusProche <= Constantes.DISTANCE_MIN_INTERACTION) { // si suffisamment proches
+				// j'interagis directement
+				interagit(arene, refCible, refRMI, elemPlusProche);
+				
+			} else { // si voisins, mais plus eloignes
+				// je vais vers le plus proche
+				
+				//voisin le plus proche sans clairvoyance
+				int refCibleTmp=voisinJoueur(arene,voisins);
+				if(refCibleTmp!=0 && distPlusProche>=7){
+					
+					tabClairvoyance[refCibleTmp]= arene.lanceClairvoyance(refRMI, refCibleTmp);
+					
+				}else if(!arene.estPotionFromRef(refCible) && voisinFaible(arene,refRMI,refCible)){
+					
+					strategieDeplacement(distPlusProche, arene, refRMI, refCible);
+					
+				}else if(!potionsMauvaises.contains(refCible) && verifierPotion(arene, refCible)){
+					if(distPlusProche <= Constantes.DISTANCE_MIN_INTERACTION){
+						interagit(arene, refCible, refRMI, elemPlusProche);		
+					}
+					else{
+						arene.deplace(refRMI, refCible);
+					}
+					
+				}else if(!voisinFaible(arene,refRMI,refCible)){
+					
+					Point coord=arene.getPosition(refCible);
+					coord.x=-coord.x;
+					coord.y=-coord.y;
+					arene.deplace(refRMI,coord);
+				}
+				else{
+					if(perso.getCaract(Caracteristique.VIE)<100)
+						arene.lanceAutoSoin(refRMI);
+					else
+						arene.deplace(refRMI, 0);
+				}
+			}
 		}
 	}
+
 	
 	
 	
@@ -248,7 +290,7 @@ public void strategieDeplacement(int distance, IArene arene, int refRMI, int cib
 			arene.lanceAutoSoin(refRMI);
 			
 		}else{
-			arene.lanceClairvoyance(refRMI, cible);
+			tabClairvoyance[cible]=arene.lanceClairvoyance(refRMI, cible);
 		}
 		
 	}
@@ -362,7 +404,43 @@ public boolean verifierPotion(IArene arene, int refCible) throws RemoteException
 	
 }
 
-
-
+	//Retourne la r�f�rence du voisin non analys� le plus proche. 0 si aucun 
+	private int voisinJoueur(IArene arene, HashMap<Integer, Point> voisins) {
+		// TODO Auto-generated method stub
+		for(int refVoisin : voisins.keySet()){
+			try {
+				if (arene.estPersonnageFromRef(refVoisin)){
+					if (tabClairvoyance[refVoisin]==null)
+						return refVoisin;
+				}
+			} catch (RemoteException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		return 0;
+	}
 	
+	private boolean voisinFaible(IArene arene, int refRMI, int refAdv){
+		if(tabClairvoyance[refAdv]!=null)
+			try {
+				if(tabClairvoyance[refAdv].get(Caracteristique.INITIATIVE)<=perso.getCaract(Caracteristique.INITIATIVE))
+				//faible si on le OHKO ou si on le 2HKO mais pas lui 
+					return ((arene.caractFromRef(refAdv, Caracteristique.VIE)<=perso.getCaract(Caracteristique.FORCE)-((tabClairvoyance[refAdv].get(Caracteristique.DEFENSE)/100)*perso.getCaract(Caracteristique.FORCE)))
+						|| ((2*arene.caractFromRef(refAdv, Caracteristique.VIE)<=perso.getCaract(Caracteristique.FORCE)-((tabClairvoyance[refAdv].get(Caracteristique.DEFENSE)/100)*perso.getCaract(Caracteristique.FORCE))) && (tabClairvoyance[refAdv].get(Caracteristique.FORCE)-((perso.getCaract(Caracteristique.DEFENSE)/100)*tabClairvoyance[refAdv].get(Caracteristique.FORCE))<2*perso.getCaract(Caracteristique.VIE))));
+				else
+					return false;
+			} catch (RemoteException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+		else
+			try {
+				return arene.caractFromRef(refAdv, Caracteristique.VIE)<=perso.getCaract(Caracteristique.FORCE)/2;
+			} catch (RemoteException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		return false;
+	}
 }

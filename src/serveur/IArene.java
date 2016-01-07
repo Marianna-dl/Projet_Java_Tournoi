@@ -292,6 +292,7 @@ public interface IArene extends Remote {
 	 */
 	public void lancePotion(Potion potion, Point position, String motDePasse) throws RemoteException;
 
+
 	/**
 	 * Ajoute une potion de teleportation dans l'arene a n'importe quel moment 
 	 * en mode tournoi.
@@ -302,6 +303,7 @@ public interface IArene extends Remote {
 	 */
 	
 	public void lancePotionTP(PotionTP potion, Point position, String motDePasse) throws RemoteException;
+
 	public Element elementFromRef(int refRMI) throws RemoteException;
 }
 
