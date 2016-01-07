@@ -181,14 +181,24 @@ public class StrategiePersonnage {
 							if(!voisinFaible(arene, refRMI, refCible) ){
 								boolean distanceVoisins = verifieVoisin(refRMI, refCible, voisins, arene);
 								
-								//on fuit
+								//on se soigne
 								if(distPlusProche>10 && distanceVoisins){ //On a le temps de se soigner
 									console.setPhrase("Je me soigne...");
 									arene.lanceAutoSoin(refRMI);
 								}
 								else{// Sinon on fuit
-									console.setPhrase("Je fuis...");
-									fuite(arene,refRMI,refCible); // A l'oppose
+									int refPopo=chercherPotionTP(voisins, arene, refRMI);
+									if(refPopo!=1){
+										console.setPhrase("Je vais vers "+arene.nomFromRef(refPopo));
+										arene.deplace(refRMI, refPopo);
+									}
+									else{
+										if(distPlusProche<=Constantes.DISTANCE_MIN_INTERACTION){
+											arene.lanceAttaque(refRMI, refCible);
+										}
+										console.setPhrase("Je fuis");
+										fuite(arene,refRMI,refCible);
+									}	
 								}
 							}
 							else{
@@ -210,7 +220,18 @@ public class StrategiePersonnage {
 							arene.lanceAutoSoin(refRMI);
 						}
 						else{// On suppose que le perso est plus fort
-							fuite(arene,refRMI,refCible); // A l'oppose
+							int refPopo=chercherPotionTP(voisins, arene, refRMI);
+							if(refPopo!=1){
+								console.setPhrase("Je vais vers "+arene.nomFromRef(refPopo));
+								arene.deplace(refRMI, refPopo);
+							}else{
+								if(distPlusProche<=Constantes.DISTANCE_MIN_INTERACTION){
+									arene.lanceAttaque(refRMI, refCible);
+								}
+								console.setPhrase("Je fuis");
+								fuite(arene,refRMI,refCible);
+							}
+						
 						}
 						
 					}
@@ -242,8 +263,17 @@ public class StrategiePersonnage {
 					}
 					
 				}else if(!voisinFaible(arene,refRMI,refCible)){
-					console.setPhrase("Je fuis");
-					fuite(arene,refRMI,refCible);
+					int refPopo=chercherPotionTP(voisins, arene, refRMI);
+					if(refPopo!=1){
+						console.setPhrase("Je vais vers "+arene.nomFromRef(refPopo));
+						arene.deplace(refRMI, refPopo);
+					}else{
+						if(distPlusProche<=Constantes.DISTANCE_MIN_INTERACTION){
+							arene.lanceAttaque(refRMI, refCible);
+						}
+						console.setPhrase("Je fuis");
+						fuite(arene,refRMI,refCible);
+					}
 				}
 				else{
 					if(perso.getCaract(Caracteristique.VIE)<100){
@@ -414,8 +444,39 @@ public int chercherPotionVieVoisin(HashMap<Integer, Point> voisins, IArene arene
 			
 		}
 		
-	
 	}
+	
+	if(!(potionsProches.isEmpty())){
+		Point position = arene.getPosition(refRMI);
+		return Calculs.chercheElementProche(position, potionsProches);
+	}
+	
+	return -1;
+}
+	
+	public int chercherPotionTP(HashMap<Integer, Point> voisins, IArene arene, int refRMI) throws RemoteException{
+		int viePotion;
+		int forcePerso;
+		int initiativePerso;
+		int defensePerso;
+
+		HashMap<Integer, Point> potionsProches = new HashMap<Integer, Point>();
+		
+		for(int refVoisin : voisins.keySet()) {
+			if(arene.estPotionFromRef(refVoisin)){
+				viePotion =  arene.caractFromRef(refVoisin, Caracteristique.VIE);
+				forcePerso = arene.caractFromRef(refVoisin, Caracteristique.FORCE);
+				initiativePerso = arene.caractFromRef(refVoisin, Caracteristique.INITIATIVE);
+				defensePerso = arene.caractFromRef(refVoisin, Caracteristique.DEFENSE);
+				if(viePotion==0 && forcePerso == 0 && initiativePerso == 0  && defensePerso==0){
+					potionsProches.put(refVoisin, arene.getPosition(refVoisin));
+					
+				}
+				
+			}
+			
+		
+		}
 	
 	if(!(potionsProches.isEmpty())){
 		Point position = arene.getPosition(refRMI);
